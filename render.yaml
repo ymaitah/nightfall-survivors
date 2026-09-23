@@ -1,0 +1,9 @@
+# One-click deploy on Render (https://render.com): New > Blueprint > point it at this repo.
+services:
+  - type: web
+    name: nightfall-survivors
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/index.js
+    healthCheckPath: /health

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Nightfall Survivors</title>
+  <meta name="description" content="Co-op survivors-like. Hold out against the night with your friends.">
+  <meta name="theme-color" content="#0b0714">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%230b0714'/><circle cx='8' cy='8' r='5' fill='%23ffd84a'/><circle cx='10' cy='6.5' r='4.2' fill='%230b0714'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="ui">
+    <!-- ================= TITLE ================= -->
+    <section id="screen-title" class="screen">
+      <div class="title-wrap">
+        <h1 class="logo"><span class="moon"></span>Nightfall<small>Survivors</small></h1>
+        <p class="tagline">Hold out until dawn. Better with friends.</p>
+        <div class="panel title-panel">
+          <label class="field">
+            <span>Your name</span>
+            <input id="name-input" maxlength="14" autocomplete="off" spellcheck="false" placeholder="Survivor">
+          </label>
+          <button id="btn-create" class="btn primary big">Create Room</button>
+          <div class="join-row">
+            <input id="code-input" maxlength="4" autocomplete="off" spellcheck="false" placeholder="CODE">
+            <button id="btn-join" class="btn">Join Room</button>
+          </div>
+          <div id="room-list-wrap" class="hidden">
+            <div class="subhead">Open rooms on this server</div>
+            <div id="room-list"></div>
+          </div>
+          <div class="menu-row">
+            <button id="btn-shop" class="btn ghost">Power-Ups <span id="title-gold" class="gold"></span></button>
+            <button id="btn-howto" class="btn ghost">How to Play</button>
+            <button id="btn-settings" class="btn ghost">Settings</button>
+          </div>
+        </div>
+        <div id="conn-status" class="conn">Connecting…</div>
+      </div>
+    </section>
+
+    <!-- ================= LOBBY ================= -->
+    <section id="screen-lobby" class="screen hidden">
+      <div class="lobby panel">
+        <header class="lobby-head">
+          <div class="room-code">
+            <span class="subhead">Room</span>
+            <strong id="lobby-code">----</strong>
+            <button id="btn-copy" class="btn small">Copy invite link</button>
+          </div>
+          <button id="btn-leave" class="btn small ghost">Leave</button>
+        </header>
+        <div id="invite-line" class="muted"></div>
+        <div class="lobby-grid">
+          <div class="lobby-col">
+            <h3>Survivors <span id="lobby-count" class="muted"></span></h3>
+            <ul id="lobby-players"></ul>
+            <h3>Run settings <span id="host-note" class="muted"></span></h3>
+            <div id="settings-box">
+              <div class="setting"><span>Stage</span><div id="set-stage" class="seg"></div></div>
+              <div class="setting"><span>Length</span><div id="set-length" class="seg"></div></div>
+              <div class="setting"><span>Difficulty</span><div id="set-diff" class="seg"></div></div>
+              <label class="setting check"><input type="checkbox" id="set-private"> <span>Hide from room list</span></label>
+            </div>
+          </div>
+          <div class="lobby-col wide">
+            <h3>Choose your survivor</h3>
+            <div id="char-grid"></div>
+            <div id="char-detail"></div>
+          </div>
+        </div>
+        <footer class="lobby-foot">
+          <div id="lobby-chat">
+            <div id="lobby-chat-log"></div>
+            <input id="lobby-chat-input" maxlength="140" placeholder="Chat… (Enter to send)" autocomplete="off">
+          </div>
+          <div class="lobby-actions">
+            <div id="lobby-hint" class="muted"></div>
+            <button id="btn-ready" class="btn">Ready</button>
+            <button id="btn-start" class="btn primary big">Start Run</button>
+          </div>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ================= SHOP ================= -->
+    <section id="screen-shop" class="screen hidden">
+      <div class="panel shop">
+        <header class="lobby-head">
+          <h2>Power-Ups</h2>
+          <div class="gold big-gold"><span id="shop-gold">0</span> gold</div>
+          <button id="btn-shop-back" class="btn small ghost">Back</button>
+        </header>
+        <p class="muted">Permanent bonuses bought with gold earned in runs. Saved in this browser.</p>
+        <div id="shop-grid"></div>
+        <div class="shop-foot"><button id="btn-refund" class="btn small ghost">Refund all</button></div>
+      </div>
+    </section>
+
+    <!-- ================= HOW TO PLAY ================= -->
+    <section id="screen-howto" class="screen hidden">
+      <div class="panel howto">
+        <header class="lobby-head"><h2>How to Play</h2><button id="btn-howto-back" class="btn small ghost">Back</button></header>
+        <div class="howto-grid">
+          <div>
+            <h3>Basics</h3>
+            <ul>
+              <li><b>Move</b> with WASD / arrow keys, a gamepad stick, touch-drag, or by holding the mouse.</li>
+              <li>Your weapons <b>attack automatically</b>. Focus on positioning.</li>
+              <li>Collect <span class="c-blue">experience gems</span>. XP is <b>shared by the team</b>. Every level-up, everyone picks an upgrade.</li>
+              <li>You can carry <b>6 weapons</b> and <b>6 passive items</b>.</li>
+              <li>Survive until the timer ends to win. Bosses appear along the way.</li>
+              <li>If you fall, a teammate can <b>revive</b> you by standing next to your grave for 3 seconds.</li>
+              <li>Break <span class="c-gold">braziers</span> for food, magnets, gold and more.</li>
+              <li><b>Esc / P</b> pauses for everyone · <b>Enter</b> opens chat · <b>Tab</b> switches spectator camera.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Evolutions</h3>
+            <p class="muted">Get a weapon to max level, own its paired passive item, then open a <span class="c-gold">chest</span> (dropped by elites and bosses).</p>
+            <div id="evo-table"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SETTINGS ================= -->
+    <div id="settings" class="overlay hidden">
+      <div class="panel settings-panel">
+        <h2>Settings</h2>
+        <label class="slider">Sound effects <input type="range" id="vol-sfx" min="0" max="1" step="0.05"></label>
+        <label class="slider">Music <input type="range" id="vol-music" min="0" max="1" step="0.05"></label>
+        <label class="check"><input type="checkbox" id="opt-numbers"> Show damage numbers</label>
+        <label class="check"><input type="checkbox" id="opt-shake"> Screen shake</label>
+        <button id="btn-settings-close" class="btn primary">Done</button>
+      </div>
+    </div>
+
+    <!-- ================= IN-GAME ================= -->
+    <div id="levelup" class="overlay hidden">
+      <div class="levelup-box">
+        <h2 id="levelup-title">LEVEL UP!</h2>
+        <div id="levelup-sub" class="muted"></div>
+        <div id="levelup-cards"></div>
+        <div class="levelup-foot">
+          <button id="btn-reroll" class="btn small ghost hidden">Reroll (<span id="reroll-n">0</span>)</button>
+          <span class="muted keys">1–4 / arrows + Enter / click</span>
+        </div>
+      </div>
+    </div>
+    <div id="waiting" class="banner hidden"></div>
+    <div id="reconnecting" class="banner warn hidden">Connection lost. Reconnecting…</div>
+
+    <div id="pause" class="overlay hidden">
+      <div class="panel pause-panel">
+        <h2>Paused</h2>
+        <p id="pause-by" class="muted"></p>
+        <div id="pause-build"></div>
+        <div id="pause-stats"></div>
+        <div class="menu-row">
+          <button id="btn-resume" class="btn primary">Resume</button>
+          <button id="btn-pause-settings" class="btn ghost">Settings</button>
+          <button id="btn-quit" class="btn ghost danger">Leave Run</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="chest" class="hidden"></div>
+
+    <div id="results" class="overlay hidden">
+      <div class="panel results-panel">
+        <h2 id="results-title">Victory</h2>
+        <p id="results-sub" class="muted"></p>
+        <div id="results-players"></div>
+        <div class="menu-row"><button id="btn-results-continue" class="btn primary big">Back to Lobby</button></div>
+      </div>
+    </div>
+
+    <div id="toasts"></div>
+    <div id="chat-log"></div>
+    <input id="chat-input" class="hidden" maxlength="140" placeholder="Say something… (Enter to send, Esc to cancel)" autocomplete="off">
+    <button id="btn-pause-touch" class="hidden" aria-label="Pause">❚❚</button>
+    <div id="rotate-hint">Tip: turn your phone sideways for a wider view</div>
+  </div>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

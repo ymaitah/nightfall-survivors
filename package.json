@@ -1,0 +1,20 @@
+{
+  "name": "nightfall-survivors",
+  "version": "1.0.0",
+  "description": "A co-op online survivors-like: auto-attacking hordes, level-up picks, weapon evolutions. Play with friends in the browser.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server/index.js",
+    "share": "node server/index.js --share",
+    "dev": "node server/index.js --dev",
+    "test": "node tools/nettest.js",
+    "sim": "node tools/sim.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
