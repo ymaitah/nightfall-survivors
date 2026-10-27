@@ -77,7 +77,7 @@ tools/nettest.js   End-to-end multiplayer test with several headless clients
 ```
 
 - **Networking:** the server is authoritative for enemies, damage, pickups and XP. Each client predicts its own movement for zero-latency controls, and the server validates it with a speed budget. The server sends a compact binary snapshot per player 15 times a second, culled to what that player can see. The client interpolates everything else. Typical bandwidth is about 5–30 KB/s per player.
-- `bun run test` runs the multiplayer end-to-end test (about 49 checks).
+- `bun run test` runs the multiplayer end-to-end test (about 49 checks). GitHub Actions runs it, plus a short bot simulation, on every push and pull request.
 - `bun run sim -- 2 20 forest normal` plays a 2-player, 20-minute run with bots and prints per-minute stats.
 - `bun run dev` starts the server with chat cheat commands for testing: `/god`, `/xp 100`, `/time 12`, `/give <weapon|passive> [level]`, `/max`, `/chest`, `/spawn <enemy> [n]`, `/elite <enemy>`. Don't use dev mode for real games.
 - Balance lives in `shared/data.js` (content) and `server/game.js` (the `DIFFICULTY` table, `hpScale`, spawn density).
