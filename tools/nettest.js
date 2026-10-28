@@ -140,6 +140,9 @@ async function main() {
     ok(!!pos, 'teleport attempt is rejected and corrected');
 
     console.log('\n[level up + pause]');
+    // A pick can upgrade an owned weapon instead of adding an item, so compare total levels.
+    const buildLevels = (p) => [...p.weapons, ...p.passives].reduce((n, [, lv]) => n + lv, 0);
+    const levelsBefore = new Map(A.last('roster').players.map(p => [p.slot, buildLevels(p)]));
     A.send({ t: 'chat', text: '/xp 12' });
     const offerA = await A.waitFor('offer'), offerB = await B.waitFor('offer');
     ok(offerA && offerB && offerA.pausing, 'level-up sends offers to both players');
@@ -156,7 +159,7 @@ async function main() {
     await autoPick([A, B], 600);
     ok((A.snap.flags & GF.LEVELUP) === 0 && A.snap.time > tFrozen, 'game resumes after everyone picks');
     const r2 = A.last('roster');
-    ok(r2.players.every(p => p.weapons.length + p.passives.length >= 2), 'picks were applied');
+    ok(r2.players.every(p => buildLevels(p) > levelsBefore.get(p.slot)), 'picks were applied');
 
     A.send({ t: 'pause', v: true });
     const pm = await B.waitFor('pause', m => m.paused);
@@ -218,7 +221,11 @@ async function main() {
   } finally {
     server.kill();
   }
-  if (serverErr.trim()) { console.log('\nserver stderr:\n' + serverErr); failures++; }
+  // Slow-tick warnings depend on the host machine (shared CI runners are slow); report them without failing.
+  const errLines = serverErr.split('\n').filter(l => l.trim());
+  const realErr = errLines.filter(l => !/^slow tick: /.test(l));
+  if (errLines.length > realErr.length) console.log('\nserver warnings:\n' + errLines.filter(l => !realErr.includes(l)).join('\n'));
+  if (realErr.length) { console.log('\nserver stderr:\n' + realErr.join('\n')); failures++; }
   console.log(failures ? `\n${failures} check(s) FAILED` : '\nAll checks passed');
   process.exit(failures ? 1 : 0);
 }

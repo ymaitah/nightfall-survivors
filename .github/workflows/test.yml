@@ -1,0 +1,19 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      # End-to-end multiplayer test: dev server plus several headless clients.
+      - run: bun run test
+      # Short headless bot run to catch simulation crashes.
+      - run: bun run sim -- 2 3 forest normal
